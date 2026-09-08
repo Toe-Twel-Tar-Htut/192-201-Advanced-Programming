@@ -62,4 +62,4 @@ class AirConditioner:
     def __str__(self):
         power = "ON" if self.is_on else "OFF"
         return (f"{self.brand} AC in {self.room_name}: {power}, "
-                f"{self.temperature}C, mode={self.mode}, fan={self.fan}")
+                f"{self.temperature}C, mode={self.mode}, fan_speed={self.fan_speed}")
