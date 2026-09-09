@@ -4,7 +4,7 @@ class AirConditioner:
     MIN_TEMP = 16
     MAX_TEMP = 30
 
-    def __init__(self, brand, room_name, temperature=25, mode="cool", fan_speed=1):
+    def __init__(self, brand, room_name, temperature=25, mode="cool", fan_speed=1, ):
         self.brand = brand
         self.room_name = room_name
         self.is_on = False
@@ -21,7 +21,7 @@ class AirConditioner:
     def temperature(self, value):
         if value < self.MIN_TEMP and value > self.MAX_TEMP:
             raise ValueError(f"Temperature must be {self.MIN_TEMP}-{self.MAX_TEMP} C.")
-        self._temperature = value
+        self._temperature = value #fix 2
 
     @property
     def mode(self):
@@ -45,7 +45,8 @@ class AirConditioner:
 
     @property
     def is_energy_saving(self):
-        return self._is_energy_saving
+        self.temperature >= 25
+        return self._temperature >= 25 #fix 3
 
     def turn_on(self):
         self.is_on = True
@@ -62,4 +63,4 @@ class AirConditioner:
     def __str__(self):
         power = "ON" if self.is_on else "OFF"
         return (f"{self.brand} AC in {self.room_name}: {power}, "
-                f"{self.temperature}C, mode={self.mode}, fan_speed={self.fan_speed}")
+                f"{self.temperature}C, mode={self.mode}, fan_speed={self.fan_speed}") #fix 1
