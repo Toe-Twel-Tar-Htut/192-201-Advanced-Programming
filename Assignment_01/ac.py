@@ -8,7 +8,7 @@ class AirConditioner:
         self.brand = brand
         self.room_name = room_name
         self.is_on = False
-        self.temperature = temperature
+        self.temperature = temperature  #fix 5
         self.mode = mode
         self.fan_speed = fan_speed
         self._is_energy_saving = temperature >= 25
@@ -55,7 +55,8 @@ class AirConditioner:
         self.is_on = False
 
     def cooler(self):
-        self._temperature -= 1
+        if self._temperature > self.MIN_TEMP :
+            self._temperature -= 1
 
     def warmer(self):
         self._temperature += 1
