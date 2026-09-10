@@ -4,11 +4,11 @@ class AirConditioner:
     MIN_TEMP = 16
     MAX_TEMP = 30
 
-    def __init__(self, brand, room_name, temperature=25, mode="cool", fan_speed=1, ):
+    def __init__(self, brand, room_name, temperature=25, mode="cool", fan_speed=1):
         self.brand = brand
         self.room_name = room_name
         self.is_on = False
-        self._temperature = temperature
+        self.temperature = temperature
         self.mode = mode
         self.fan_speed = fan_speed
         self._is_energy_saving = temperature >= 25
@@ -19,7 +19,7 @@ class AirConditioner:
 
     @temperature.setter
     def temperature(self, value):
-        if value < self.MIN_TEMP or value > self.MAX_TEMP:
+        if value < self.MIN_TEMP or value > self.MAX_TEMP:  #fix 4
             raise ValueError(f"Temperature must be {self.MIN_TEMP}-{self.MAX_TEMP} C.")
         self._temperature = value #fix 2
 
