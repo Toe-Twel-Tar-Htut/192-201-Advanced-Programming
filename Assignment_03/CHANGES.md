@@ -61,10 +61,10 @@ Record **every** prompt where AI helped. If you wrote a part yourself, say so in
 
 ## 4 · Before-you-submit checklist
 
-- [ ] `python Assignment_03.py` prints **PASS**.
-- [ ] No tuples / parallel lists left — products, orders, and items are objects.
-- [ ] No `if tier == ...` chains — tiers are a class family.
-- [ ] Calculation methods **return** values and do not `print`; printing is separate.
-- [ ] Constructors validate state; no leftover `global`; magic numbers are named.
-- [ ] The change table and reflection above are filled in.
-- [ ] The prompt log is complete and the ownership statement is signed.
+- [done] `python Assignment_03.py` prints **PASS**.
+- [done] No tuples / parallel lists left — products, orders, and items are objects.
+- [done] No `if tier == ...` chains — tiers are a class family.
+- [done] Calculation methods **return** values and do not `print`; printing is separate.
+- [done] Constructors validate state; no leftover `global`; magic numbers are named.
+- [done] The change table and reflection above are filled in.
+- [done] The prompt log is complete and the ownership statement is signed.
