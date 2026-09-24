@@ -190,36 +190,232 @@ GOLDEN_OUTPUT = capture(legacy_main)
 # ==============================================================================
 
 # --- named constants (replace the magic numbers) ---
-# TAX_RATE           = ...
-# FOOD_CATEGORY      = ...
-# DISCOUNT_THRESHOLD = ...
-# BULK_QTY_THRESHOLD = ...
-# BULK_DISCOUNT_RATE = ...
-# POINTS_DIVISOR     = ...
+TAX_RATE = 0.07
+FOOD_CATEGORY = "food"
+DISCOUNT_THRESHOLD = 100.0
+BULK_QTY_THRESHOLD = 10
+BULK_DISCOUNT_RATE = 0.03
+POINTS_DIVISOR = 10
 
-# class Product:
-#     ...
+FOOD_TAX_RATE = 0.0
 
-# class OrderItem:          # has-a Product
-#     ...
+NONE_DISCOUNT_RATE = 0.0
+NONE_POINTS_MULTIPLIER = 1
 
-# class Customer:           # base tier; then Silver / Gold / Platinum subclasses
-#     ...
+SILVER_LOW_DISCOUNT = 0.02
+SILVER_HIGH_DISCOUNT = 0.05
+SILVER_POINTS_MULTIPLIER = 2
 
-# class Order:              # has-a Customer, has-many OrderItem
-#     def subtotal(self): ...     # pure: returns a number
-#     def discount(self): ...     # pure
-#     def tax(self): ...          # pure
-#     def total(self): ...        # pure
-#     def points(self): ...       # pure
-#     def receipt(self):          # builds the receipt text (no calculation here)
-#         ...
+GOLD_LOW_DISCOUNT = 0.05
+GOLD_HIGH_DISCOUNT = 0.10
+GOLD_POINTS_MULTIPLIER = 3
+
+PLATINUM_LOW_DISCOUNT = 0.10
+PLATINUM_HIGH_DISCOUNT = 0.15
+PLATINUM_POINTS_MULTIPLIER = 5
+
+
+class Product:
+    def __init__(self, name, price, category):
+        if price < 0:
+            raise ValueError("price cannot be negative")
+
+        self.name = name
+        self.price = price
+        self.category = category
+
+
+class OrderItem:
+    def __init__(self, product, quantity):
+        if quantity < 1:
+            raise ValueError("quantity must be at least 1")
+
+        self.product = product
+        self.quantity = quantity
+
+
+class Customer:
+    tier = "none"
+
+    def __init__(self, name):
+        if not name:
+            raise ValueError("name cannot be empty")
+
+        self.name = name
+
+    def discount_rate(self, subtotal):
+        return NONE_DISCOUNT_RATE
+
+    def points_multiplier(self):
+        return NONE_POINTS_MULTIPLIER
+
+
+class SilverCustomer(Customer):
+    tier = "silver"
+
+    def discount_rate(self, subtotal):
+        if subtotal > DISCOUNT_THRESHOLD:
+            return SILVER_HIGH_DISCOUNT
+        return SILVER_LOW_DISCOUNT
+
+    def points_multiplier(self):
+        return SILVER_POINTS_MULTIPLIER
+
+
+class GoldCustomer(Customer):
+    tier = "gold"
+
+    def discount_rate(self, subtotal):
+        if subtotal > DISCOUNT_THRESHOLD:
+            return GOLD_HIGH_DISCOUNT
+        return GOLD_LOW_DISCOUNT
+
+    def points_multiplier(self):
+        return GOLD_POINTS_MULTIPLIER
+
+
+class PlatinumCustomer(Customer):
+    tier = "platinum"
+
+    def discount_rate(self, subtotal):
+        if subtotal > DISCOUNT_THRESHOLD:
+            return PLATINUM_HIGH_DISCOUNT
+        return PLATINUM_LOW_DISCOUNT
+
+    def points_multiplier(self):
+        return PLATINUM_POINTS_MULTIPLIER
+
+
+class Order:
+    def __init__(self, customer, items):
+        self.customer = customer
+        self.items = items
+
+    def subtotal(self):
+        subtotal = 0.0
+
+        for item in self.items:
+            subtotal += item.product.price * item.quantity
+
+        return subtotal
+
+    def discount(self):
+        subtotal = self.subtotal()
+        discount = subtotal * self.customer.discount_rate(subtotal)
+
+        total_quantity = 0
+
+        for item in self.items:
+            total_quantity += item.quantity
+
+        if total_quantity >= BULK_QTY_THRESHOLD:
+            discount += subtotal * BULK_DISCOUNT_RATE
+
+        return discount
+
+    def tax(self):
+        tax = 0.0
+
+        for item in self.items:
+            line = item.product.price * item.quantity
+
+            if item.product.category == FOOD_CATEGORY:
+                tax += line * FOOD_TAX_RATE
+            else:
+                tax += line * TAX_RATE
+
+        return tax
+
+    def total(self):
+        return self.subtotal() - self.discount() + self.tax()
+
+    def points(self):
+        return int(self.total() // POINTS_DIVISOR) * self.customer.points_multiplier()
+
+    def receipt(self):
+        lines = []
+
+        lines.append(
+            "Receipt for "
+            + self.customer.name
+            + " ("
+            + self.customer.tier
+            + ")"
+        )
+        lines.append("-" * 40)
+
+        for item in self.items:
+            line = item.product.price * item.quantity
+            lines.append(
+                item.product.name
+                + " x"
+                + str(item.quantity)
+                + " = "
+                + str(line)
+            )
+
+        lines.append("-" * 40)
+        lines.append("Subtotal: " + str(round(self.subtotal(), 2)))
+        lines.append("Discount: " + str(round(self.discount(), 2)))
+        lines.append("Tax: " + str(round(self.tax(), 2)))
+        lines.append("Total: " + str(round(self.total(), 2)))
+        lines.append("Points earned: " + str(self.points()))
+
+        return "\n".join(lines) + "\n\n"
 
 
 def refactored_main():
-    """Print every receipt and the grand total — same output as legacy_main()."""
-    raise NotImplementedError("Build your refactored program, then delete this line.")
+    products = [
+        Product("Laptop", 1200.0, "electronics"),
+        Product("Headphones", 200.0, "electronics"),
+        Product("Coffee Beans", 15.0, "food"),
+        Product("Notebook", 5.0, "stationery"),
+        Product("Water Bottle", 10.0, "food"),
+        Product("Monitor", 300.0, "electronics"),
+        Product("Pen", 2.0, "stationery"),
+    ]
 
+    orders = [
+        Order(
+            GoldCustomer("Alice"),
+            [
+                OrderItem(products[0], 1),
+                OrderItem(products[1], 2),
+                OrderItem(products[2], 3),
+            ],
+        ),
+        Order(
+            Customer("Bob"),
+            [
+                OrderItem(products[3], 10),
+                OrderItem(products[6], 5),
+            ],
+        ),
+        Order(
+            PlatinumCustomer("Charlie"),
+            [
+                OrderItem(products[5], 2),
+                OrderItem(products[4], 6),
+                OrderItem(products[2], 2),
+            ],
+        ),
+        Order(
+            SilverCustomer("Dana"),
+            [
+                OrderItem(products[1], 1),
+                OrderItem(products[3], 3),
+                OrderItem(products[6], 10),
+            ],
+        ),
+    ]
+
+    grand = 0.0
+
+    for order in orders:
+        print(order.receipt(), end="")
+        grand += order.total()
+
+    print("GRAND TOTAL (all orders): " + str(round(grand, 2)))
 
 # ==============================================================================
 #  SELF-TEST  —  DO NOT EDIT.   Run:  python Assignment_03.py
